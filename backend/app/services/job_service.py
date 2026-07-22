@@ -7,8 +7,15 @@ from app.schemas.job import JobCreate
 class JobService:
     @staticmethod
     def get_jobs(db: Session, skip: int = 0, limit: int = 100):
-        return db.query(Job).offset(skip).limit(limit).all()
+        print("Inside JobService.get_jobs()")
 
+        jobs = db.query(Job).offset(skip).limit(limit).all()
+
+        print(f"Database returned: {jobs}")
+
+        return jobs
+
+    
     @staticmethod
     def get_job(db: Session, job_id: int):
         job = db.query(Job).filter(Job.id == job_id).first()

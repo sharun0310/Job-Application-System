@@ -1,7 +1,12 @@
 from typing import List, Dict, Any
 from app.services.job_collection.base_provider import JobProvider
 import hashlib
-
+import json
+from sqlalchemy.orm import Session
+from app.models.job import Job, Company
+from app.database.chroma import chroma_client
+from app.ai.embedding_service import embedding_service
+from app.schemas.job import JobCreate
 
 class JobCollectorService:
     """
@@ -15,7 +20,7 @@ class JobCollectorService:
     def register_provider(self, provider: JobProvider):
         self._providers.append(provider)
 
-    def collect_jobs(self, query: str, location: str) -> List[Dict[str, Any]]:
+    def collect_jobs(self, query: str, location: str, db: Session = None) -> List[Dict[str, Any]]:
         raw_jobs = []
         for provider in self._providers:
             # 1. Collect
@@ -27,7 +32,51 @@ class JobCollectorService:
         # 3. Remove Duplicates
         unique_jobs = self._remove_duplicates(normalized_jobs)
 
-        # 4. Generate Embeddings & Save to DB (To be implemented with ChromaDB/SQLAlchemy)
+        # 4. Generate Embeddings & Save to DB
+        if db:
+            for job_data in unique_jobs:
+                # Find or create company
+                company_name = job_data["company"]
+                company = db.query(Company).filter(Company.name.ilike(company_name)).first()
+                if not company:
+                    company = Company(name=company_name)
+                    db.add(company)
+                    db.commit()
+                    db.refresh(company)
+                
+                # Check if job already exists for this company
+                existing_job = db.query(Job).filter(
+                    Job.company_id == company.id, 
+                    Job.title.ilike(job_data["title"])
+                ).first()
+
+                if not existing_job:
+                    # Save Job to Postgres
+                    skills_str = json.dumps(job_data["skills_required"]) if isinstance(job_data["skills_required"], list) else str(job_data.get("skills_required", ""))
+                    job_in = JobCreate(
+                        title=job_data["title"],
+                        company_id=company.id,
+                        location=job_data.get("location"),
+                        description=job_data.get("description", ""),
+                        required_skills=skills_str,
+                        application_link=job_data.get("url")
+                    )
+                    pg_job = Job(**job_in.model_dump())
+                    db.add(pg_job)
+                    db.commit()
+                    db.refresh(pg_job)
+
+                    # Generate embeddings
+                    text_to_embed = f"{pg_job.title} {pg_job.description} {pg_job.required_skills}"
+                    emb = embedding_service.generate_embedding(text_to_embed)
+
+                    # Save to ChromaDB
+                    chroma_client.jobs.add(
+                        ids=[str(pg_job.id)],
+                        embeddings=[emb],
+                        metadatas=[{"job_id": pg_job.id, "title": pg_job.title, "company": company.name}]
+                    )
+
         return unique_jobs
 
     def _normalize(self, raw_jobs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:

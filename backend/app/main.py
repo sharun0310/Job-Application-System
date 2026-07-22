@@ -11,6 +11,7 @@ from app.routers.jobs import router as jobs_router
 from app.routers.applications import router as applications_router
 from app.routers.matching import router as matching_router
 from app.routers.notifications import router as notifications_router
+from app.routers.job_collection import router as job_collection_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -61,6 +62,11 @@ app.include_router(
     notifications_router,
     prefix=f"{settings.API_V1_STR}/notifications",
     tags=["Notifications"],
+)
+app.include_router(
+    job_collection_router,
+    prefix=f"{settings.API_V1_STR}/job-collection",
+    tags=["Job Collection"],
 )
 
 if __name__ == "__main__":

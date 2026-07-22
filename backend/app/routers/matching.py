@@ -6,11 +6,11 @@ from app.models.user import User
 from app.services.matching_service import MatchingService
 from app.utils.response import success_response
 from typing import List
-
+from app.utils.response import APIResponse
 router = APIRouter()
 
 
-@router.get("/jobs/recommended", response_model=dict)
+@router.get("/jobs/recommended", response_model=APIResponse)
 def get_recommended_jobs(
     top_k: int = 5,
     db: Session = Depends(get_db),
@@ -20,7 +20,7 @@ def get_recommended_jobs(
     return success_response(data=jobs, message="Recommended jobs fetched successfully")
 
 
-@router.get("/skill-gap/{job_id}", response_model=dict)
+@router.get("/skill-gap/{job_id}", response_model=APIResponse)
 def get_skill_gap(
     job_id: int,
     db: Session = Depends(get_db),
@@ -30,7 +30,7 @@ def get_skill_gap(
     return success_response(data=analysis, message="Skill gap analysis complete")
 
 
-@router.post("/learning-roadmap", response_model=dict)
+@router.post("/learning-roadmap", response_model=APIResponse)
 def get_learning_roadmap(
     missing_skills: List[str],
     target_role: str,
