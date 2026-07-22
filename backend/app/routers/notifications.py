@@ -5,11 +5,11 @@ from app.authentication.dependencies import get_current_user
 from app.models.user import User
 from app.services.notification_service import NotificationService
 from app.utils.response import success_response
-
+from app.utils.response import APIResponse
 router = APIRouter()
 
 
-@router.get("/", response_model=dict)
+@router.get("/", response_model=APIResponse)
 def get_notifications(
     unread_only: bool = False,
     db: Session = Depends(get_db),
@@ -23,7 +23,7 @@ def get_notifications(
     )
 
 
-@router.put("/{notification_id}/read", response_model=dict)
+@router.put("/{notification_id}/read", response_model=APIResponse)
 def mark_notification_as_read(
     notification_id: int,
     db: Session = Depends(get_db),

@@ -42,7 +42,9 @@ class ResumeService:
         system_prompt = (
             "You are an expert Resume Parser. Extract the following entities from the resume text: "
             "name, email, phone, skills (list), education (list of dicts), experience (list of dicts), "
-            "projects (list of dicts). Return ONLY a JSON object."
+            "projects (list of dicts), and classified_domain (string, exactly one of: "
+            "'Full Stack', 'Machine Learning', 'DevOps', 'Software Testing', 'Salesforce', 'Cyber Security', 'Other'). "
+            "Return ONLY a JSON object."
         )
         parsed_data = {}
         try:

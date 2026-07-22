@@ -5,12 +5,12 @@ from app.schemas.application import ApplicationCreate, ApplicationOut
 from app.services.application_service import ApplicationService
 from app.authentication.dependencies import get_current_user
 from app.models.user import User
-from app.utils.response import success_response
+from app.utils.response import success_response, APIResponse
 
 router = APIRouter()
 
 
-@router.post("/apply", response_model=dict)
+@router.post("/apply", response_model=APIResponse)
 def apply_job(
     app_in: ApplicationCreate,
     db: Session = Depends(get_db),
@@ -23,7 +23,7 @@ def apply_job(
     )
 
 
-@router.get("", response_model=dict)
+@router.get("", response_model=APIResponse)
 def read_applications(
     db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):

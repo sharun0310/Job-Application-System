@@ -70,11 +70,14 @@ class JobCollectorService:
                     text_to_embed = f"{pg_job.title} {pg_job.description} {pg_job.required_skills}"
                     emb = embedding_service.generate_embedding(text_to_embed)
 
+                    # Classify Domain
+                    domain = self._classify_domain(text_to_embed)
+
                     # Save to ChromaDB
                     chroma_client.jobs.add(
                         ids=[str(pg_job.id)],
                         embeddings=[emb],
-                        metadatas=[{"job_id": pg_job.id, "title": pg_job.title, "company": company.name}]
+                        metadatas=[{"job_id": pg_job.id, "title": pg_job.title, "company": company.name, "domain": domain}]
                     )
 
         return unique_jobs
@@ -108,3 +111,16 @@ class JobCollectorService:
                 unique_jobs.append(job)
 
         return unique_jobs
+
+    def _classify_domain(self, text: str) -> str:
+        """
+        Agentic Domain Classifier: Categorizes jobs based on keywords.
+        """
+        text = text.lower()
+        if "full stack" in text or "fullstack" in text: return "Full Stack"
+        if "machine learning" in text or "ml" in text or "data sci" in text or "ai" in text: return "Machine Learning"
+        if "devops" in text or "kubernetes" in text or "aws" in text or "azure" in text: return "DevOps"
+        if "test" in text or "qa" in text or "quality assurance" in text: return "Software Testing"
+        if "salesforce" in text: return "Salesforce"
+        if "cyber" in text or "security" in text or "infosec" in text: return "Cyber Security"
+        return "Other"

@@ -12,6 +12,28 @@ from app.routers.applications import router as applications_router
 from app.routers.matching import router as matching_router
 from app.routers.notifications import router as notifications_router
 from app.routers.job_collection import router as job_collection_router
+from app.routers.live_job_search import router as live_job_search_router
+
+# Initialize Live Search Engine Providers
+from app.live_job_search.provider_factory import provider_factory
+from app.live_job_search.providers.arbeitnow import ArbeitnowProvider
+from app.live_job_search.providers.remotive import RemotiveProvider
+from app.live_job_search.providers.remoteok import RemoteOKProvider
+from app.live_job_search.providers.jobicy import JobicyProvider
+from app.live_job_search.providers.adzuna import AdzunaProvider
+from app.live_job_search.providers.usajobs import USAJobsProvider
+from app.live_job_search.config import live_job_settings
+
+provider_factory.register_provider(ArbeitnowProvider, config=live_job_settings.ARBEITNOW)
+provider_factory.register_provider(RemotiveProvider, config=live_job_settings.REMOTIVE)
+provider_factory.register_provider(RemoteOKProvider, config=live_job_settings.REMOTEOK)
+provider_factory.register_provider(JobicyProvider, config=live_job_settings.JOBICY)
+provider_factory.register_provider(AdzunaProvider, config=live_job_settings.ADZUNA)
+provider_factory.register_provider(USAJobsProvider, config=live_job_settings.USAJOBS)
+
+# Initialize Company Career Discovery
+from app.live_job_search.company_discovery.company_discovery_service import company_discovery_service
+company_discovery_service.register_all_companies()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -67,6 +89,11 @@ app.include_router(
     job_collection_router,
     prefix=f"{settings.API_V1_STR}/job-collection",
     tags=["Job Collection"],
+)
+app.include_router(
+    live_job_search_router,
+    prefix=f"{settings.API_V1_STR}/live-jobs",
+    tags=["Live Job Search"],
 )
 
 if __name__ == "__main__":

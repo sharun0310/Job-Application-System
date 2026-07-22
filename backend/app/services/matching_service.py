@@ -6,6 +6,7 @@ from app.models.job import Job
 from app.database.chroma import chroma_client
 from app.ai.ats_service import ATSService
 from app.ai.roadmap_service import RoadmapService
+from app.schemas.job import JobOut
 
 
 class MatchingService:
@@ -56,7 +57,7 @@ class MatchingService:
                         pg_job = db.query(Job).filter(Job.id == int(job_id)).first()
                         if pg_job:
                             recommended_jobs.append(
-                                {"job": pg_job, "match_score": match_score}
+                                {"job": JobOut.model_validate(pg_job).model_dump(), "match_score": match_score}
                             )
 
             # Sort by match_score descending
