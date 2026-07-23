@@ -38,3 +38,8 @@ class Job(Base):
     applications = relationship(
         "Application", back_populates="job", cascade="all, delete-orphan"
     )
+
+    @property
+    def company_name(self) -> str:
+        return self.company.name if self.company else f"Company #{self.company_id}"
+

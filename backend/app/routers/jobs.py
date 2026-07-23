@@ -23,8 +23,10 @@ def read_jobs(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 @router.get("/{job_id}", response_model=APIResponse)
 def read_job(job_id: int, db: Session = Depends(get_db)):
     job = JobService.get_job(db, job_id)
-    return success_response(data=JobOut.model_validate(job).model_dump())
-
+    return success_response(
+        data=JobOut.model_validate(job).model_dump(),
+        message="Request successful"
+    )
 
 @router.post("", response_model=APIResponse)
 def create_job(
@@ -35,14 +37,4 @@ def create_job(
     job = JobService.create_job(db, job_in)
     return success_response(
         data=JobOut.model_validate(job).model_dump(), message="Job created successfully"
-    )
-
-
-@router.get("/{job_id}", response_model=APIResponse)
-def read_job(job_id: int, db: Session = Depends(get_db)):
-    job = JobService.get_job(db, job_id)
-
-    return success_response(
-        data=JobOut.model_validate(job).model_dump(),
-        message="Request successful"
     )

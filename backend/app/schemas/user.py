@@ -4,6 +4,7 @@ from typing import Optional
 
 class UserBase(BaseModel):
     email: EmailStr
+    whatsapp_number: Optional[str] = None
 
 
 class UserCreate(UserBase):

@@ -39,9 +39,19 @@ class AdzunaProvider(AsyncJobProvider):
             return []
 
         base_url = self.config.base_url or "https://api.adzuna.com/v1/api"
-        # Defaulting to US for this example, but can be extracted from location logic
-        country = "us" 
         
+        # Dynamic country selection logic
+        country = "us"
+        loc_str = (location or "").lower().strip()
+        
+        india_keywords = ["india", "bangalore", "bengaluru", "mumbai", "delhi", "hyderabad", "chennai", "pune", "noida", "gurgaon", "gurugram", "kolkata", "in"]
+        uk_keywords = ["uk", "united kingdom", "london", "manchester", "gb"]
+        
+        if any(k in loc_str for k in india_keywords):
+            country = "in"
+        elif any(k in loc_str for k in uk_keywords):
+            country = "gb"
+
         endpoint = f"{base_url}/jobs/{country}/search/1"
         params = {
             "app_id": app_id,

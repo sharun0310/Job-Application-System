@@ -35,8 +35,8 @@ class LiveJobSearchConfig(BaseSettings):
     JOBICY: ProviderConfig = ProviderConfig(priority=30, base_url="https://jobicy.com/api/v2/remote-jobs")
     USAJOBS: ProviderConfig = ProviderConfig(priority=40, base_url="https://data.usajobs.gov/api/search")
     
-    # Placeholders for future APIs
+    # India & Global Providers
     LINKEDIN: ProviderConfig = ProviderConfig(enabled=False, priority=100)
-    INDEED: ProviderConfig = ProviderConfig(enabled=False, priority=100)
+    INDEED: ProviderConfig = ProviderConfig(enabled=True, priority=5)
 
 live_job_settings = LiveJobSearchConfig()

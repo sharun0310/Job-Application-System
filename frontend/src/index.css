@@ -1,0 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+:root {
+  --color-bg: #080B17;
+  --color-sidebar: #0E1322;
+  --color-card: #101425;
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-border-hover: rgba(255, 255, 255, 0.12);
+  --gradient-primary: linear-gradient(135deg, #6D5CFF 0%, #F93E9F 100%);
+  --color-accent-purple: #6D5CFF;
+  --color-accent-pink: #F93E9F;
+  --color-accent-green: #26D07C;
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #94A3B8;
+  --color-text-muted: #64748B;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Glassmorphism & Custom Card Utilities */
+.glass-card {
+  background: rgba(16, 20, 37, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+}
+
+.glass-card-hover {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card-hover:hover {
+  border-color: rgba(109, 92, 255, 0.3);
+  box-shadow: 0 12px 35px -10px rgba(109, 92, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #6D5CFF 0%, #F93E9F 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-btn {
+  background: linear-gradient(135deg, #6D5CFF 0%, #F93E9F 100%);
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 20px rgba(109, 92, 255, 0.35);
+}
+
+.gradient-btn:hover {
+  opacity: 0.94;
+  box-shadow: 0 6px 25px rgba(249, 62, 159, 0.45);
+  transform: translateY(-1px);
+}
+
+.gradient-border-active {
+  background: linear-gradient(135deg, rgba(109, 92, 255, 0.2), rgba(249, 62, 159, 0.15));
+  border: 1px solid rgba(109, 92, 255, 0.4);
+  box-shadow: 0 0 20px rgba(109, 92, 255, 0.15);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0E1322;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1C243B;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6D5CFF;
+}
+

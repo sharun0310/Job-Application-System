@@ -6,6 +6,7 @@ from datetime import datetime
 class JobBase(BaseModel):
     title: str
     company_id: int
+    company_name: Optional[str] = None
     location: Optional[str] = None
     salary: Optional[str] = None
     employment_type: Optional[str] = None

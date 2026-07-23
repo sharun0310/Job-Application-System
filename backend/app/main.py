@@ -13,6 +13,7 @@ from app.routers.matching import router as matching_router
 from app.routers.notifications import router as notifications_router
 from app.routers.job_collection import router as job_collection_router
 from app.routers.live_job_search import router as live_job_search_router
+from app.routers.chatbot import router as chatbot_router
 
 # Initialize Live Search Engine Providers
 from app.live_job_search.provider_factory import provider_factory
@@ -22,8 +23,10 @@ from app.live_job_search.providers.remoteok import RemoteOKProvider
 from app.live_job_search.providers.jobicy import JobicyProvider
 from app.live_job_search.providers.adzuna import AdzunaProvider
 from app.live_job_search.providers.usajobs import USAJobsProvider
+from app.live_job_search.providers.india_provider import IndeedIndiaProvider
 from app.live_job_search.config import live_job_settings
 
+provider_factory.register_provider(IndeedIndiaProvider, config=live_job_settings.INDEED)
 provider_factory.register_provider(ArbeitnowProvider, config=live_job_settings.ARBEITNOW)
 provider_factory.register_provider(RemotiveProvider, config=live_job_settings.REMOTIVE)
 provider_factory.register_provider(RemoteOKProvider, config=live_job_settings.REMOTEOK)
@@ -35,10 +38,22 @@ provider_factory.register_provider(USAJobsProvider, config=live_job_settings.USA
 from app.live_job_search.company_discovery.company_discovery_service import company_discovery_service
 company_discovery_service.register_all_companies()
 
+from contextlib import asynccontextmanager
+from app.utils.scheduler import start_scheduler, stop_scheduler
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    start_scheduler()
+    yield
+    # Shutdown
+    stop_scheduler()
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    lifespan=lifespan
 )
 
 app.add_middleware(
@@ -94,6 +109,11 @@ app.include_router(
     live_job_search_router,
     prefix=f"{settings.API_V1_STR}/live-jobs",
     tags=["Live Job Search"],
+)
+app.include_router(
+    chatbot_router,
+    prefix=f"{settings.API_V1_STR}/chatbot",
+    tags=["Career AI Chatbot"],
 )
 
 if __name__ == "__main__":

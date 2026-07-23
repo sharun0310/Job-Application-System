@@ -41,4 +41,7 @@ class CacheManager:
             'data': data
         }
 
+    def clear(self):
+        self._memory_cache.clear()
+
 cache_manager = CacheManager()

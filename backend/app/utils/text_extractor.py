@@ -3,13 +3,14 @@ import docx
 import easyocr
 import io
 import logging
+import numpy as np
+from PIL import Image
 
 logger = logging.getLogger(__name__)
 
 
 class TextExtractor:
     def __init__(self):
-        # Initialize EasyOCR reader (English only for now to save memory)
         try:
             self.reader = easyocr.Reader(["en"], gpu=False)
         except Exception as e:
@@ -21,8 +22,15 @@ class TextExtractor:
         try:
             doc = fitz.open(stream=file_bytes, filetype="pdf")
             for page in doc:
-                text += page.get_text()
-            return text
+                page_text = page.get_text()
+                if page_text and page_text.strip():
+                    text += page_text + "\n"
+                else:
+                    # OCR fallback for scanned PDF pages
+                    pix = page.get_pixmap()
+                    img_bytes = pix.tobytes("png")
+                    text += self.extract_from_image(img_bytes) + "\n"
+            return text.strip()
         except Exception as e:
             logger.error(f"PDF Extraction error: {e}")
             return ""
@@ -32,8 +40,14 @@ class TextExtractor:
         try:
             doc = docx.Document(io.BytesIO(file_bytes))
             for para in doc.paragraphs:
-                text += para.text + "\n"
-            return text
+                if para.text:
+                    text += para.text + "\n"
+            for table in doc.tables:
+                for row in table.rows:
+                    for cell in row.cells:
+                        if cell.text:
+                            text += cell.text + "\n"
+            return text.strip()
         except Exception as e:
             logger.error(f"DOCX Extraction error: {e}")
             return ""
@@ -42,8 +56,10 @@ class TextExtractor:
         if not self.reader:
             return ""
         try:
-            result = self.reader.readtext(file_bytes, detail=0)
-            return " ".join(result)
+            image = Image.open(io.BytesIO(file_bytes)).convert("RGB")
+            img_np = np.array(image)
+            result = self.reader.readtext(img_np, detail=0)
+            return " ".join(result).strip()
         except Exception as e:
             logger.error(f"Image OCR error: {e}")
             return ""
