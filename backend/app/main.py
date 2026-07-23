@@ -38,12 +38,17 @@ provider_factory.register_provider(USAJobsProvider, config=live_job_settings.USA
 from app.live_job_search.company_discovery.company_discovery_service import company_discovery_service
 company_discovery_service.register_all_companies()
 
-from contextlib import asynccontextmanager
-from app.utils.scheduler import start_scheduler, stop_scheduler
+from app.database.connection import engine
+from app.models.base import Base
+import app.models  # Ensure all models are registered
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        print(f"Database table auto-creation note: {e}")
     start_scheduler()
     yield
     # Shutdown
